@@ -18,5 +18,10 @@
   },
   "dependencies": {
     "imapflow": "^1.0.0"
+  },
+  "n8n": {
+    "nodes": [
+      "dist/ImapTools.node.js"
+    ]
   }
 }
