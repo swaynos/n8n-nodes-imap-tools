@@ -1,5 +1,4 @@
-import { IExecuteFunctions } from 'n8n-core';
-import { INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { ImapFlow } from 'imapflow';
 
 export class ImapMove implements INodeType {
@@ -52,6 +51,13 @@ export class ImapMove implements INodeType {
                 description: 'UID of the message to move',
             },
             {
+                displayName: 'Source Mailbox',
+                name: 'sourceMailbox',
+                type: 'string',
+                default: 'INBOX',
+                description: 'Mailbox where the UID currently resides',
+            },
+            {
                 displayName: 'Target Mailbox',
                 name: 'mailbox',
                 type: 'string',
@@ -71,7 +77,12 @@ export class ImapMove implements INodeType {
             const user = this.getNodeParameter('user', i) as string;
             const password = this.getNodeParameter('password', i) as string;
             const uid = this.getNodeParameter('uid', i) as number;
+            const sourceMailbox = this.getNodeParameter('sourceMailbox', i) as string;
             const mailbox = this.getNodeParameter('mailbox', i) as string;
+
+            if (!uid || uid <= 0) {
+                throw new Error('Message UID must be a positive number.');
+            }
 
             const client = new ImapFlow({
                 host,
@@ -80,12 +91,26 @@ export class ImapMove implements INodeType {
                 auth: { user, pass: password },
             });
 
-            await client.connect();
-            await client.mailboxOpen('INBOX'); // or wherever you expect the UID to reside
-            await client.messageMove(uid, mailbox);
-            await client.logout();
+            let connected = false;
+            try {
+                await client.connect();
+                connected = true;
+                await client.mailboxOpen(sourceMailbox);
+                const moveResult = await client.messageMove(String(uid), mailbox, { uid: true });
+                if (moveResult === false) {
+                    throw new Error(
+                        `Message with UID ${uid} was not found in mailbox "${sourceMailbox}".`,
+                    );
+                }
+            } finally {
+                if (connected) {
+                    await client.logout();
+                } else {
+                    await client.close();
+                }
+            }
 
-            returnData.push({ json: { uid, moved: true, mailbox } });
+            returnData.push({ json: { uid, moved: true, mailbox, sourceMailbox } });
         }
         return [returnData];
     }
