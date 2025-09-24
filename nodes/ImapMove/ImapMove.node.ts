@@ -4,7 +4,7 @@ import { ImapFlow } from 'imapflow';
 export class ImapMove implements INodeType {
     description: INodeTypeDescription = {
         displayName: 'IMAP Move',
-        name: 'imapMove',
+        name: 'ImapMove',
         group: ['transform'],
         version: 1,
         description: 'Move an email to a target mailbox',

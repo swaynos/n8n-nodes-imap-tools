@@ -3,25 +3,31 @@
   "version": "0.1.0",
   "description": "Custom n8n node(s) for IMAP operations like MOVE to Spam",
   "keywords": [
-    "n8n-node"
-  ],
+		"n8n-community-node-package"
+	],
   "license": "Apache-2.0",
   "main": "index.js",
   "scripts": {
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2",
-    "n8n-core": "^1.112.1",
-    "n8n-workflow": "^1.110.0",
-    "typescript": "^5.0.0"
+    "@typescript-eslint/parser": "~8.32.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "gulp": "^5.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
   },
   "dependencies": {
     "imapflow": "^1.0.0"
   },
   "n8n": {
+    "n8nNodesApiVersion": 1,
     "nodes": [
-      "dist/ImapTools.node.js"
+      "dist/nodes/ImapMove/ImapMove.node.js"
     ]
   }
 }
