@@ -11,7 +11,7 @@
         "${config:n8n.launchRoot}/node_modules/n8n/bin/n8n",
         "start"
       ],
-      "cwd": "${config:n8n.launchRoot}",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "restart": true,
       "skipFiles": ["<node_internals>/**"],
