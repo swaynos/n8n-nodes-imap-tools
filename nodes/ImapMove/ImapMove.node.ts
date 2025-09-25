@@ -1,5 +1,12 @@
-import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import type {
+    ICredentialDataDecryptedObject,
+    IExecuteFunctions,
+    INodeExecutionData,
+    INodeType,
+    INodeTypeDescription,
+} from 'n8n-workflow';
 import { ImapFlow } from 'imapflow';
+import type { ImapFlowOptions } from 'imapflow';
 
 export class ImapMove implements INodeType {
     description: INodeTypeDescription = {
@@ -11,38 +18,13 @@ export class ImapMove implements INodeType {
         defaults: { name: 'IMAP Move' },
         inputs: ['main'],
         outputs: ['main'],
+        credentials: [
+            {
+                name: 'imap',
+                required: true,
+            },
+        ],
         properties: [
-            {
-                displayName: 'IMAP Host',
-                name: 'host',
-                type: 'string',
-                default: 'imap.gmail.com',
-            },
-            {
-                displayName: 'Port',
-                name: 'port',
-                type: 'number',
-                default: 993,
-            },
-            {
-                displayName: 'Secure',
-                name: 'secure',
-                type: 'boolean',
-                default: true,
-            },
-            {
-                displayName: 'User',
-                name: 'user',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Password / App Password',
-                name: 'password',
-                type: 'string',
-                typeOptions: { password: true },
-                default: '',
-            },
             {
                 displayName: 'Message UID',
                 name: 'uid',
@@ -71,11 +53,19 @@ export class ImapMove implements INodeType {
         const returnData: INodeExecutionData[] = [];
 
         for (let i = 0; i < items.length; i++) {
-            const host = this.getNodeParameter('host', i) as string;
-            const port = this.getNodeParameter('port', i) as number;
-            const secure = this.getNodeParameter('secure', i) as boolean;
-            const user = this.getNodeParameter('user', i) as string;
-            const password = this.getNodeParameter('password', i) as string;
+            const credentials = (await this.getCredentials(
+                'imap',
+            )) as ICredentialDataDecryptedObject | null;
+
+            if (!credentials) {
+                throw new Error('IMAP credentials are required but missing.');
+            }
+            const host = (credentials.host as string) || '';
+            const port = credentials.port !== undefined ? Number(credentials.port) : 993;
+            const secure = credentials.secure !== false;
+            const user = (credentials.user as string) || '';
+            const password = (credentials.password as string) || '';
+            const allowUnauthorizedCerts = credentials.allowUnauthorizedCerts === true;
             const uid = this.getNodeParameter('uid', i) as number;
             const sourceMailbox = this.getNodeParameter('sourceMailbox', i) as string;
             const mailbox = this.getNodeParameter('mailbox', i) as string;
@@ -84,12 +74,26 @@ export class ImapMove implements INodeType {
                 throw new Error('Message UID must be a positive number.');
             }
 
-            const client = new ImapFlow({
+            if (!Number.isFinite(port) || port <= 0) {
+                throw new Error('IMAP credential port must be a positive number.');
+            }
+
+            if (!host || !user || !password) {
+                throw new Error('IMAP credentials must include host, user, and password.');
+            }
+
+            const clientOptions: ImapFlowOptions = {
                 host,
                 port,
                 secure,
                 auth: { user, pass: password },
-            });
+            };
+
+            if (allowUnauthorizedCerts) {
+                clientOptions.tls = { rejectUnauthorized: false };
+            }
+
+            const client = new ImapFlow(clientOptions);
 
             let connected = false;
             try {
