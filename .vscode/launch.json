@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch n8n (inspect)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect=9229",
+        "${config:n8n.launchRoot}/node_modules/n8n/bin/n8n",
+        "start"
+      ],
+      "cwd": "${config:n8n.launchRoot}",
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/index.js",
+        "${workspaceFolder}/nodes/**/*.js"
+      ],
+      "env": {
+        "N8N_LOG_LEVEL": "debug"
+      },
+      "preLaunchTask": "npm run build"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to n8n",
+      "address": "localhost",
+      "port": 9229,
+      "restart": false,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": ".",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
