@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Custom n8n node(s) for IMAP operations like MOVE to Spam",
   "keywords": [
-		"n8n-community-node-package"
-	],
+    "n8n-community-node-package"
+  ],
   "license": "Apache-2.0",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,8 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "nodes": [
-      "dist/nodes/ImapMove/ImapMove.node.js"
+      "dist/nodes/ImapMove/ImapMove.node.js",
+      "dist/nodes/ImapGetMessage/ImapGetMessage.node.js"
     ]
   }
 }
