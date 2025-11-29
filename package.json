@@ -28,7 +28,8 @@
     "n8nNodesApiVersion": 1,
     "nodes": [
       "dist/nodes/ImapMove/ImapMove.node.js",
-      "dist/nodes/ImapGetMessage/ImapGetMessage.node.js"
+      "dist/nodes/ImapGetMessage/ImapGetMessage.node.js",
+      "dist/nodes/ImapEncodingScan/ImapEncodingScan.node.js"
     ]
   }
 }
